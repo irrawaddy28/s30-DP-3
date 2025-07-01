@@ -66,7 +66,7 @@ def min_falling_path_sum(A):
         else:
             a = recurse(A, row+1, col-1)
             b = recurse(A, row+1, col)
-            c = recurse(A, row+1, col)
+            c = recurse(A, row+1, col+1)
             m = min(a, b, c)
         this = A[row][col]
         return this + m
@@ -99,7 +99,7 @@ def min_falling_path_sum_dp(A):
 
 
 def run_min_falling_path_sum():
-    tests = [([[2,1,3], [6,5,4], [7,8,9]],13), ([[-19, 57], [-40,-5]],-59)]
+    tests = [([[2,1,3], [6,5,4], [7,8,9]],13), ([[-19, 57], [-40,-5]],-59), ([[1,2,3],[4,5,6],[7,8,9]], 12), ([[2]], 2), ([[1,2,10,4],[100,3,2,1],[1,1,20,2],[1,2,2,1]],6)]
 
     for test in tests:
         A, ans = test[0], test[1]

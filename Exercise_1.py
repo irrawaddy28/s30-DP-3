@@ -145,7 +145,6 @@ def run_delete_and_earn():
         A, ans = test[0], test[1]
         start = time.time()*1000
         score = delete_and_earn_dp(A)
-        #score = findMaximumScore(A, len(A))
         elapsed =  time.time()*1000 - start
         print(f"\nmatrix = {A}")
         print(f"score = {score}, time = {elapsed:.2f} ms (dp tabulation)")
