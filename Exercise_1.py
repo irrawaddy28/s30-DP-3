@@ -32,7 +32,7 @@ Solution:
 1. Brute Force (Recursion): At each element, we have two choices: delete or skip. We do this recursively for each element. Thus for N elements, we have a worst case scenario of 2^N possibilities.
 Time: O(2^N), Space: O(N)
 
-2. Tabulation (bottom-up approach): We construct a 1-D dp[] array and maintain a hash map to preserve the counts of each element. We define:
+2. Tabulation 1 (bottom-up approach): We construct a 1-D dp[] array and maintain a hash map to preserve the counts of each element. We define:
 dp[i] = max score earned until ith element (curr element) of array, i.e. A[i-1].
       = max(max score from deleting curr element, max score from not deleting curr element)
 
@@ -55,6 +55,11 @@ Step 2: return dp[N]
 Time: O(N log N + N) = O(N log N), Space: O(2N) = O(N)
 O(N log N) to sort the array + O(N) to populate the dp array
 
+3. Tabulation 2 (bottom-up approach): For each element in input array A, get the score of that element (score = element * count(element)) and store the element and score in an a separate array where the index of the array is the element itself and the value is the score. After this preprocessing step, the problem becomes identical to the house robber problem.
+
+https://youtu.be/Oepp2HQ7134?t=347
+
+Time: O(N + max(A)), Space: O(max(A))
 '''
 from collections import Counter
 import time
@@ -91,7 +96,7 @@ def delete_and_earn(A):
     A = sorted(A)
     return recurse(A, 0, 0)
 
-def delete_and_earn_dp(A):
+def delete_and_earn_dp1(A):
     ''' dynamic programming (bottom-up) '''
     if len(A) == 0:
         return 0
@@ -129,6 +134,48 @@ def delete_and_earn_dp(A):
     return dp[N]
 
 
+def delete_and_earn_dp2(A):
+    ''' dynamic programming (bottom-up) '''
+    N = len(A)
+    if N == 0:
+        return 0
+
+    # find max of array A
+    max_A = float('-inf')
+    for i in range(N): # O(N)
+        max_A = max(max_A, A[i])
+
+    # each element in A is a score obtained by deleting that element. Hence, store the score of each element in an array scores where index of scores is the element and value is the freq count * element
+    # eg. If A = [1,1,4,4], then
+    # scores   = [0, 2, 0, 0, 8]
+    #             0  1  2  3  4
+    scores = [0]*(max_A+1) # O(Max)
+    for i in range(N):
+        index = A[i]
+        scores[index] += index
+
+    # We can compute the dp values by using a 1-D DP array which takes O(max_A) space or by using two variables which takes O(1) space
+
+    # a) 1-D DP array O(max_A)
+    # dp = [0]*(max_A+1)
+    # dp[0] = 0
+    # dp[1] = scores[1]
+    # for i in range(2, max_A+1):
+    #     skip =  dp[i-1] # case 0
+    #     delete = + dp[i-2] + scores[i]  # case 1
+    #     dp[i] = max(skip, delete)
+    # return dp[max_A]
+
+    # b) 1two variables O(1)
+    skip = 0
+    delete = scores[1]
+    for i in range(2, max_A + 1): # O(max_A)
+        prev_skip = skip
+        skip = max(skip, delete) # max (prev skip, prev del)
+        delete = prev_skip + scores[i] # prev skip + current score
+    return max(skip, delete)
+
+
 def run_delete_and_earn():
     tests = [([3,4,2],6), ([2,2,3,3,3,4],9), ([1],1), ([1,2,2,2],6), ([7,2,1,8,3,3,6,6],27), ([2,4,4,5,20], 30)]
 
@@ -144,10 +191,19 @@ def run_delete_and_earn():
     for test in tests:
         A, ans = test[0], test[1]
         start = time.time()*1000
-        score = delete_and_earn_dp(A)
+        score = delete_and_earn_dp1(A)
         elapsed =  time.time()*1000 - start
         print(f"\nmatrix = {A}")
-        print(f"score = {score}, time = {elapsed:.2f} ms (dp tabulation)")
+        print(f"score = {score}, time = {elapsed:.2f} ms (dp-1 tabulation)")
+        print(f"Pass: {ans == score}")
+
+    for test in tests:
+        A, ans = test[0], test[1]
+        start = time.time()*1000
+        score = delete_and_earn_dp2(A)
+        elapsed =  time.time()*1000 - start
+        print(f"\nmatrix = {A}")
+        print(f"score = {score}, time = {elapsed:.2f} ms (dp-2 tabulation)")
         print(f"Pass: {ans == score}")
 
 run_delete_and_earn()
